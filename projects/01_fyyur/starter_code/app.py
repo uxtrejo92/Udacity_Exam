@@ -11,6 +11,7 @@ from flask_sqlalchemy import SQLAlchemy
 import logging
 from logging import Formatter, FileHandler
 from flask_wtf import Form
+from flask_migrate import Migrate
 from forms import *
 #----------------------------------------------------------------------------#
 # App Config.
@@ -19,7 +20,9 @@ from forms import *
 app = Flask(__name__)
 moment = Moment(app)
 app.config.from_object('config')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 # TODO: connect to a local postgresql database
 
@@ -28,41 +31,53 @@ db = SQLAlchemy(app)
 #----------------------------------------------------------------------------#
 
 class Venue(db.Model):
-    __tablename__ = 'Venue'
+    __tablename__ = 'venue'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
     city = db.Column(db.String(120), nullable=False)
     state = db.Column(db.String(120), nullable=False)
-    genres = db.Column(db.String(120), nullable=False, default='')
+    genres = db.Column(db.String(120), nullable=False)
     address = db.Column(db.String(120), nullable=False)
-    phone = db.Column(db.String(120), nullable=False)
-    image_link = db.Column(db.String(500), nullable=True)
-    facebook_link = db.Column(db.String(120), nullable=True)
-    website = db.Column(db.String(120), nullable=True)
-    seeking_talent = db.Column(db.Boolean, nullable=False)
-    seeking_description = db.Column(db.String(120), nullable=True)
+    phone = db.Column(db.String(120), nullable=True, default="No Phone Number")
+    image_link = db.Column(db.String(500), nullable=True, default="Please check out our website")
+    facebook_link = db.Column(db.String(120), nullable=True, default="Please check out our website")
+    website = db.Column(db.String(120), nullable=True, default="Coming Soon")
+    seeking_talent = db.Column(db.Boolean, nullable=False, default=False)
+    seeking_description = db.Column(db.String(500), nullable=True, default="")
+    artist = db.relationship('show', backref=db.backref('venues'))
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
 class Artist(db.Model):
-    __tablename__ = 'Artist'
+    __tablename__ = 'artist'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
     city = db.Column(db.String(120), nullable=False)
     state = db.Column(db.String(120), nullable=False)
     phone = db.Column(db.String(120), nullable=False)
-    genres = db.Column(db.String(120), nullable=False, default='')
+    genres = db.Column(db.String(120), nullable=False)
     image_link = db.Column(db.String(500), nullable=False)
-    facebook_link = db.Column(db.String(120))
-    website = db.Column(db.String(120), nullable=True)
-    seeking_talent = db.Column(db.Boolean, nullable=False)
-    seeking_description = db.Column(db.String(120), nullable=True)
+    facebook_link = db.Column(db.String(120), nullable=True, default="Please check out our website")
+    website = db.Column(db.String(120), nullable=True, default="Coming Soon")
+    seeking_venue = db.Column(db.Boolean, nullable=False, default=False)
+    seeking_description = db.Column(db.String(500), nullable=True, default="")
+    venues = db.relationship('show', backref=db.backref('artist'))
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
 # TODO Implement Show and Artist models, and complete all model relationships and properties, as a database migration.
+
+class Show(db.Model):
+  __tablename__ = 'show'
+
+  id = db.Column(db.Integer, primary_key=True)
+  artist_id = db.Column(db.Integer, db.ForeignKey('artist.id'), nullable=False, onupdate='Cascade')
+  venue_id = db.Column(db.Integer, db.ForeignKey('venue.id'), nullable=False, onupdate='Cascade')
+  show_time = db.Column(db.DateTime, nullable=False)
+  artist = db.relationship('artist', backref=db.backref('venues'))
+  venues = db.relationship('venue', backref=db.backref('artist'))
 
 #----------------------------------------------------------------------------#
 # Filters.
@@ -441,35 +456,35 @@ def shows():
   data=[{
     "venue_id": 1,
     "venue_name": "The Musical Hop",
-    "artist_id": 4,
+    "artist_id": 1,
     "artist_name": "Guns N Petals",
     "artist_image_link": "https://images.unsplash.com/photo-1549213783-8284d0336c4f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=300&q=80",
     "start_time": "2019-05-21T21:30:00.000Z"
   }, {
     "venue_id": 3,
     "venue_name": "Park Square Live Music & Coffee",
-    "artist_id": 5,
+    "artist_id": 2,
     "artist_name": "Matt Quevedo",
     "artist_image_link": "https://images.unsplash.com/photo-1495223153807-b916f75de8c5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=334&q=80",
     "start_time": "2019-06-15T23:00:00.000Z"
   }, {
     "venue_id": 3,
     "venue_name": "Park Square Live Music & Coffee",
-    "artist_id": 6,
+    "artist_id": 3,
     "artist_name": "The Wild Sax Band",
     "artist_image_link": "https://images.unsplash.com/photo-1558369981-f9ca78462e61?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=794&q=80",
     "start_time": "2035-04-01T20:00:00.000Z"
   }, {
     "venue_id": 3,
     "venue_name": "Park Square Live Music & Coffee",
-    "artist_id": 6,
+    "artist_id": 3,
     "artist_name": "The Wild Sax Band",
     "artist_image_link": "https://images.unsplash.com/photo-1558369981-f9ca78462e61?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=794&q=80",
     "start_time": "2035-04-08T20:00:00.000Z"
   }, {
     "venue_id": 3,
     "venue_name": "Park Square Live Music & Coffee",
-    "artist_id": 6,
+    "artist_id": 3,
     "artist_name": "The Wild Sax Band",
     "artist_image_link": "https://images.unsplash.com/photo-1558369981-f9ca78462e61?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=794&q=80",
     "start_time": "2035-04-15T20:00:00.000Z"
