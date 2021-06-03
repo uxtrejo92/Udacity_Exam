@@ -14,6 +14,7 @@ from flask_wtf import Form
 from flask_migrate import Migrate
 from forms import *
 import sys
+from datetime import date
 #----------------------------------------------------------------------------#
 # App Config.
 #----------------------------------------------------------------------------#
@@ -84,6 +85,8 @@ class Show(db.Model):
   artist = db.relationship('Artist', backref=db.backref('venue'))
   venues = db.relationship('Venue', backref=db.backref('artist'))
 
+  def __repr__(self):
+    return f'<id: {self.id}, venue_id: {self.venue_id}, artist_id {self.artist_id}, show_time: {self.show_time}>'
 #----------------------------------------------------------------------------#
 # Filters.
 #----------------------------------------------------------------------------#
@@ -113,29 +116,26 @@ def index():
 @app.route('/venues')
 def venues():
   # TODO: replace with real venues data.
-  #       num_shows should be aggregated based on number of upcoming shows per venue.
-  data=[{
-    "city": "San Francisco",
-    "state": "CA",
-    "venues": [{
-      "id": 1,
-      "name": "The Musical Hop",
-      "num_upcoming_shows": 0,
-    }, {
-      "id": 3,
-      "name": "Park Square Live Music & Coffee",
-      "num_upcoming_shows": 1,
-    }]
-  }, {
-    "city": "New York",
-    "state": "NY",
-    "venues": [{
-      "id": 2,
-      "name": "The Dueling Pianos Bar",
-      "num_upcoming_shows": 0,
-    }]
-  }]
-  return render_template('pages/venues.html', areas=data);
+  # num_shows should be aggregated based on number of upcoming shows per venue.
+  newData = []
+  query = Venue.query.with_entities(Venue.city, Venue.state).distinct()
+  result =  query.all()
+  for val, val2 in result:
+    venue = {}
+    venue['city'] = val 
+    venue['state'] = val2
+    venue['venues'] = []
+    for value in Venue.query.all():
+      if val == value.city:
+        if val2 == value.state:
+          v_ = {}
+          v_['id'] = value.id
+          v_['name'] = value.name 
+          v_['num_upcoming_shows'] = db.session.query(Show).filter(Show.venue_id == value.id, Show.show_time > datetime.utcnow(), Venue.state == val2, Venue.city == val).count()
+          venue['venues'].append(v_)
+    newData.append(venue) 
+  print(newData)
+  return render_template('pages/venues.html', areas=newData);
 
 @app.route('/venues/search', methods=['POST'])
 def search_venues():
