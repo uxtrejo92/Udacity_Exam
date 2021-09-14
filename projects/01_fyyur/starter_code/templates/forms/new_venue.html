@@ -1,7 +1,7 @@
 {% extends 'layouts/main.html' %} {% block title %}New Venue{% endblock %} {%
 block content %}
 <div class="form-wrapper">
-  <form method="post" class="form">
+  <form method="post" class="form" action="/venues/create">
     <h3 class="form-heading">
       List a new venue
       <a href="{{ url_for('index') }}" title="Back to homepage"
@@ -32,18 +32,32 @@ block content %}
     <div class="form-group">
       <label for="phone">Phone</label>
       {{ form.phone(class_ = 'form-control', placeholder='xxx-xxx-xxxx',
-      autofocus = true) }}
+      autofocus = true, maxlength =10, minlength =10) }}
     </div>
     <div class="form-group">
       <label for="genres">Genres</label>
       <small>Ctrl+Click to select multiple</small>
-      {{ form.genres(class_ = 'form-control', placeholder='Genres, separated by
-      commas', id=form.state, autofocus = true) }}
+      {{ form.genres(class_ = 'form-control', placeholder='Genres', rows=19, multiple=true, autofocus = true) }}
     </div>
     <div class="form-group">
-      <label for="facebook_link">Facebook Link</label>
-      {{ form.facebook_link(class_ = 'form-control', placeholder='http://',
-      id=form.state, autofocus = true) }}
+      <label for="image_link">Image Link</label>
+      {{ form.image_link(class_ = 'form-control', placeholder='Image_Link', autofocus = true) }}
+    </div>
+    <div class="form-group">
+      <label for="facebook_link">Facebook Link (Optional)</label>
+      {{ form.facebook_link(class_ = 'form-control', placeholder='http://', autofocus = true) }}
+    </div>
+    <div class="form-group">
+      <label for="website">Website Link (Optional)</label>
+      {{ form.website(class_ = 'form-control', placeholder='http://', autofocus = true) }}
+    </div>
+    <div class="form-group">
+      <label for="seeking_talent">Seeking Talent (Optional)</label>
+      {{ form.seeking_talent(class_ = 'form-control', placeholder='True or False', autofocus = true) }}
+    </div>
+    <div class="form-group">
+      <label for="seeking_description">Describe the talent you are looking for (Optional)</label>
+      {{ form.seeking_description(class_ = 'form-control', placeholder='Type Something', autofocus = true) }}
     </div>
     <input
       type="submit"

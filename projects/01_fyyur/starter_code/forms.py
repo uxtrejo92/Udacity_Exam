@@ -2,7 +2,7 @@ import sys
 from datetime import datetime
 from flask_wtf import Form
 from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField, IntegerField, BooleanField, TextAreaField
-from wtforms.validators import DataRequired, AnyOf, URL
+from wtforms.validators import DataRequired, AnyOf, URL, Length
 
 class ShowForm(Form):
     artist_id = SelectField(
@@ -85,7 +85,7 @@ class VenueForm(Form):
         'address', validators=[DataRequired()]
     )
     phone = StringField(
-        'phone', validators=[DataRequired()]
+        'phone', validators=[DataRequired(), Length(min=10, max=10, message="Please enter numbers only no special characters")]
     )
     image_link = StringField(
         'image_link', validators=[DataRequired()]
@@ -193,7 +193,7 @@ class ArtistForm(Form):
     )
     phone = StringField(
         # TODO implement validation logic for state
-        'phone', validators=[DataRequired()]
+        'phone', validators=[DataRequired(), Length(min=10, max=10, message="Please enter numbers only no special characters")]
     )
     image_link = StringField(
         'image_link', validators=[DataRequired()]

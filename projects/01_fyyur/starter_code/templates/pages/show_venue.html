@@ -2,6 +2,11 @@
 block content %}
 <div class="row">
   <div class="col-sm-6">
+    <div class="edit_button">
+      <h7>
+        <a href="/venues/{{venue.id}}/edit"><button class="btn btn-primary btn-lg">Edit Venue</button></a>
+      </h7>
+    </div>
     <h1 class="monospace">{{ venue.name }}</h1>
     <p class="subtitle">ID: {{ venue.id }}</p>
     <div class="genres">
