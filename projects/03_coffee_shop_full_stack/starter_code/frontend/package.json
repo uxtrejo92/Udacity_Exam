@@ -29,7 +29,7 @@
     "jwt-decode": "^2.2.0",
     "rxjs": "~6.5.1",
     "tslib": "^1.14.1",
-    "zone.js": "~0.11.4",
+    "zone.js": "~0.14.1",
     "lodash": "^4.17.21"
   },
   "devDependencies": {
