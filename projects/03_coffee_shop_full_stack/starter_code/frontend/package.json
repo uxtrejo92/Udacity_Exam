@@ -30,7 +30,7 @@
     "rxjs": "~6.5.1",
     "tslib": "^1.14.1",
     "zone.js": "~0.11.4",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.23"
   },
   "devDependencies": {
     "@angular-devkit/architect": "~0.13.8",
